@@ -1,0 +1,920 @@
+/* ==========================================================================
+   CINEMATIC PORTFOLIO — style.css
+   --------------------------------------------------------------------------
+   0. Tokens            5. Topbar          10. HUD (arrows / dots / count)
+   1. Reset & base      6. Panel (left)    11. Entrance choreography
+   2. Intro (phase 1)   7. CTA             12. Responsive
+   3. Veil              8. Rail & cards    13. Motion & focus preferences
+   4. Hero shell        9. Card slots
+   ========================================================================== */
+
+
+/* ==========================================================================
+   0. TOKENS
+   ========================================================================== */
+:root{
+  /* — Palette ————————————————————————————————————— */
+  --void:        #0a0a0c;
+  --void-lift:   #101014;
+  --ink:         #f3f0ea;
+  --ink-dim:     rgba(243,240,234,.60);
+  --ink-faint:   rgba(243,240,234,.30);
+  --hair:        rgba(243,240,234,.13);
+
+  /* EDIT: accent — a muted bone-gold. Try #9fb7c9 (cold steel) or #c9a4a4 (dust rose). */
+  --accent:      #d7b98d;
+  --accent-soft: rgba(215,185,141,.45);
+  --accent-haze: rgba(215,185,141,.16);
+
+  /* — Glass ——————————————————————————————————————— */
+  --glass:       rgba(255,255,255,.055);
+  --glass-hi:    rgba(255,255,255,.10);
+  --glass-edge:  rgba(255,255,255,.16);
+
+  /* — Type ———————————————————————————————————————— */
+  /* EDIT: swap 'Syne' for 'Cinzel' below for a classical film-title feel. */
+  --font-display: 'Syne', 'Cinzel', Georgia, serif;
+  /* EDIT: swap 'Plus Jakarta Sans' for 'Inter' for a more neutral body voice. */
+  --font-body:    'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* — Easing & timing ————————————————————————————— */
+  --e-out:    cubic-bezier(.16, 1, .3, 1);
+  --e-soft:   cubic-bezier(.22, .61, .36, 1);
+  --e-inout:  cubic-bezier(.76, 0, .24, 1);
+
+  --t-slide:  900ms;   /* keep in sync with CONFIG.transition in script.js */
+  --t-bg:     1250ms;
+  --t-panel:  700ms;
+
+  /* — Geometry ———————————————————————————————————— */
+  --card-w:  clamp(148px, 12.5vw, 214px);
+  --card-h:  calc(var(--card-w) * 1.4);
+  --gutter:  clamp(20px, 4.2vw, 68px);
+  --radius:  14px;
+}
+
+
+/* ==========================================================================
+   1. RESET & BASE
+   ========================================================================== */
+*, *::before, *::after{ box-sizing: border-box; }
+
+html, body{ height: 100%; }
+
+body{
+  margin: 0;
+  background: var(--void);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.55;
+  overflow: hidden;                      /* single-viewport experience */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, p, figure{ margin: 0; }
+button{ font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+a{ color: inherit; text-decoration: none; }
+img, video{ display: block; max-width: 100%; }
+
+.sr-only{
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* Nothing animates before the script has wired everything up. */
+body.is-booting *{ animation-play-state: paused; }
+
+
+/* ==========================================================================
+   2. INTRO (PHASE 1)
+   ========================================================================== */
+.intro{
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  overflow: hidden;
+  background: var(--void);
+  transform-origin: 50% 50%;
+  will-change: opacity, transform, filter;
+}
+
+.intro__video{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.02);                /* hides letterbox edges */
+  transition: opacity 900ms var(--e-soft), filter 900ms var(--e-soft);
+}
+
+/* Vignette + top/bottom falloff so the skip button always stays legible */
+.intro__scrim{
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 45%, transparent 40%, rgba(10,10,12,.72) 100%),
+    linear-gradient(to bottom, rgba(10,10,12,.55) 0%, transparent 22%, transparent 70%, rgba(10,10,12,.75) 100%);
+}
+
+/* — Fallback title card (only when the video can't play) ——————— */
+.intro__card{
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  text-align: center;
+  padding: var(--gutter);
+}
+.intro.is-fallback .intro__card{ display: flex; }
+.intro.is-fallback .intro__video{ opacity: .34; filter: blur(3px) saturate(.6); }
+
+.intro__name{
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.6rem, 9vw, 7.5rem);
+  letter-spacing: -.045em;
+  line-height: .9;
+  opacity: 0;
+  transform: translate3d(0, 26px, 0);
+  filter: blur(14px);
+  animation: introRise 1500ms var(--e-out) 220ms forwards;
+}
+.intro__tag{
+  font-size: clamp(.85rem, 1.4vw, 1rem);
+  color: var(--ink-dim);
+  letter-spacing: .01em;
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  animation: introRise 1400ms var(--e-out) 620ms forwards;
+}
+.intro__rule{
+  width: min(210px, 40vw);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-soft), transparent);
+  transform: scaleX(0);
+  transform-origin: 50% 50%;
+  animation: introRule 1600ms var(--e-out) 900ms forwards;
+}
+
+@keyframes introRise{
+  to{ opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes introRule{
+  to{ transform: scaleX(1); }
+}
+
+/* — Skip button ——————————————————————————————————— */
+.skip{
+  position: absolute;
+  right: clamp(16px, 3vw, 40px);
+  bottom: clamp(16px, 3vw, 40px);
+  z-index: 3;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 20px 11px 16px;
+  border-radius: 100px;
+
+  font-size: .8rem;
+  font-weight: 400;
+  letter-spacing: .02em;
+  color: var(--ink-dim);
+
+  background: var(--glass);
+  border: 1px solid var(--glass-edge);
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
+  backdrop-filter: blur(16px) saturate(1.25);
+  box-shadow: 0 6px 30px rgba(0,0,0,.35);
+
+  opacity: 0;
+  transform: translate3d(0, 12px, 0);
+  animation: introRise 900ms var(--e-out) 1500ms forwards;
+  transition: color 400ms var(--e-soft),
+              background 400ms var(--e-soft),
+              border-color 400ms var(--e-soft),
+              transform 500ms var(--e-out);
+}
+.skip:hover,
+.skip:focus-visible{
+  color: var(--ink);
+  background: var(--glass-hi);
+  border-color: rgba(255,255,255,.30);
+  transform: translate3d(0, -2px, 0);
+}
+.skip:active{ transform: translate3d(0, 0, 0) scale(.97); }
+
+.skip__dot{
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 var(--accent-soft);
+  animation: pulse 2600ms var(--e-soft) infinite;
+}
+@keyframes pulse{
+  0%   { box-shadow: 0 0 0 0 var(--accent-soft); }
+  70%  { box-shadow: 0 0 0 9px rgba(215,185,141,0); }
+  100% { box-shadow: 0 0 0 0 rgba(215,185,141,0); }
+}
+
+/* — Exit: the intro dissolves back into the dark ————————————— */
+.intro.is-leaving{
+  opacity: 0;
+  transform: scale(1.06);
+  filter: blur(22px) brightness(.5);
+  transition: opacity 820ms var(--e-inout),
+              transform 1100ms var(--e-out),
+              filter 820ms var(--e-inout);
+  pointer-events: none;
+}
+.intro.is-gone{ display: none; }
+
+
+/* ==========================================================================
+   3. VEIL — the black/blur dissolve between phases
+   ========================================================================== */
+.veil{
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  background: var(--void);
+  opacity: 0;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(0px);
+  backdrop-filter: blur(0px);
+  transition: opacity 620ms var(--e-inout), backdrop-filter 620ms var(--e-inout);
+}
+.veil.is-on{
+  opacity: 1;
+  -webkit-backdrop-filter: blur(30px);
+  backdrop-filter: blur(30px);
+}
+
+
+/* ==========================================================================
+   4. HERO SHELL & BACKGROUND
+   ========================================================================== */
+.hero{
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100vh;
+  height: 100dvh;
+  padding: clamp(18px, 2.6vh, 34px) var(--gutter) clamp(18px, 2.6vh, 30px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 900ms var(--e-soft), visibility 0s 900ms;
+}
+.hero.is-live{
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 900ms var(--e-soft), visibility 0s;
+}
+
+.bg{
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: var(--void);
+  overflow: hidden;
+}
+.bg__layer{
+  position: absolute;
+  inset: -2%;                            /* bleed room for the pan */
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transform: scale(1.06);
+  will-change: opacity, transform;
+  transition: opacity var(--t-bg) var(--e-soft);
+}
+.bg__layer.is-active{ opacity: 1; }
+
+/* Slow ambient pan — the "cinematic" drift behind the type */
+.bg__layer.is-anim{
+  animation: kenburns 22s linear forwards;
+}
+@keyframes kenburns{
+  from{ transform: scale(1.06) translate3d(0, 0, 0); }
+  to  { transform: scale(1.19) translate3d(-1.8%, -1.2%, 0); }
+}
+
+/* Colour grade: crushes the image toward the left so the type stays readable */
+.bg__grade{
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(100deg, rgba(10,10,12,.94) 0%, rgba(10,10,12,.78) 32%, rgba(10,10,12,.28) 62%, rgba(10,10,12,.55) 100%),
+    linear-gradient(to top, rgba(10,10,12,.85) 0%, transparent 38%),
+    radial-gradient(130% 100% at 60% 40%, transparent 35%, rgba(10,10,12,.65) 100%);
+}
+
+/* Static film grain — no animation, so it never costs a frame */
+.grain{
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+
+/* ==========================================================================
+   5. TOPBAR
+   ========================================================================== */
+.topbar{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.brand{
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand__mark{
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -.02em;
+}
+.brand__line{
+  width: 26px; height: 1px;
+  background: var(--hair);
+}
+.brand__sub{
+  font-size: .78rem;
+  color: var(--ink-faint);
+  letter-spacing: .04em;
+}
+
+.topbar__hint{
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: .72rem;
+  color: var(--ink-faint);
+}
+.topbar__hint kbd{
+  display: grid;
+  place-items: center;
+  width: 21px; height: 21px;
+  border: 1px solid var(--hair);
+  border-radius: 5px;
+  font: inherit;
+  font-size: .7rem;
+}
+
+
+/* ==========================================================================
+   6. STAGE + PANEL (LEFT)
+   ========================================================================== */
+.stage{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: clamp(24px, 5vw, 80px);
+  min-height: 0;
+  padding-bottom: clamp(8px, 3vh, 40px);
+}
+
+.panel{
+  max-width: 34rem;                      /* keeps the line length honest */
+  padding-bottom: clamp(4px, 2vh, 24px);
+}
+
+/* Shared entrance state for every direct child of the panel */
+.panel > *{
+  opacity: 0;
+  transform: translate3d(0, 30px, 0);
+  filter: blur(9px);
+  will-change: opacity, transform, filter;
+  transition:
+    opacity   var(--t-panel) var(--e-soft) var(--d, 0ms),
+    transform 950ms          var(--e-out)  var(--d, 0ms),
+    filter    var(--t-panel) var(--e-soft) var(--d, 0ms);
+}
+.panel > *:nth-child(1){ --d: 0ms;   }
+.panel > *:nth-child(2){ --d: 90ms;  }
+.panel > *:nth-child(3){ --d: 180ms; }
+.panel > *:nth-child(4){ --d: 270ms; }
+
+.panel.is-in > *{
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  filter: blur(0);
+}
+
+/* Exit: lifts and dissolves upward, top line leaving first */
+.panel.is-out > *{
+  opacity: 0;
+  transform: translate3d(0, -20px, 0);
+  filter: blur(7px);
+  transition-duration: 380ms, 420ms, 380ms;
+  transition-timing-function: var(--e-inout);
+}
+.panel.is-out > *:nth-child(1){ --d: 0ms;  }
+.panel.is-out > *:nth-child(2){ --d: 45ms; }
+.panel.is-out > *:nth-child(3){ --d: 90ms; }
+.panel.is-out > *:nth-child(4){ --d: 135ms;}
+
+/* Used for one frame while text is swapped, so nothing tweens backwards */
+.no-anim, .no-anim *{
+  transition: none !important;
+  animation: none !important;
+}
+
+/* — Meta line: index + Arabic section name ——————————————— */
+.panel__meta{
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: clamp(12px, 1.8vh, 22px);
+}
+.panel__num{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: .82rem;
+  color: var(--accent);
+  letter-spacing: .06em;
+}
+.panel__ar{
+  font-size: .95rem;
+  font-weight: 400;
+  color: var(--ink-dim);
+  line-height: 1.4;
+}
+
+.panel__title{
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.4rem, 6.4vw, 5.6rem);
+  line-height: .92;
+  letter-spacing: -.045em;
+  text-wrap: balance;
+  margin-bottom: clamp(14px, 2vh, 24px);
+}
+
+.panel__desc{
+  max-width: 30rem;
+  font-size: clamp(.92rem, 1.15vw, 1.06rem);
+  color: var(--ink-dim);
+  line-height: 1.62;
+  margin-bottom: clamp(22px, 3.4vh, 40px);
+}
+
+
+/* ==========================================================================
+   7. CTA
+   ========================================================================== */
+.cta-wrap{ display: block; }
+
+.cta{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px 14px 26px;
+  border-radius: 100px;
+  overflow: hidden;
+
+  font-size: .92rem;
+  font-weight: 500;
+  letter-spacing: .01em;
+
+  background: var(--glass);
+  border: 1px solid var(--glass-edge);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  will-change: transform;
+  transition:
+    transform 520ms var(--e-out),
+    background 420ms var(--e-soft),
+    border-color 420ms var(--e-soft),
+    box-shadow 520ms var(--e-soft);
+}
+.cta:hover,
+.cta:focus-visible{
+  transform: scale(1.035);
+  background: var(--accent-haze);
+  border-color: var(--accent-soft);
+  box-shadow: 0 10px 44px -14px var(--accent-soft),
+              0 0 0 1px rgba(215,185,141,.10) inset;
+}
+.cta:active{ transform: scale(.975); }
+.cta.is-pressed{ transform: scale(.96); }
+
+.cta__label{ position: relative; z-index: 2; }
+
+.cta__pip{
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  color: var(--void);
+  background: var(--ink);
+  transition: transform 520ms var(--e-out), background 420ms var(--e-soft);
+}
+.cta:hover .cta__pip,
+.cta:focus-visible .cta__pip{
+  transform: translate3d(3px, 0, 0);
+  background: var(--accent);
+}
+
+/* Light sweeping across the glass on hover */
+.cta__sheen{
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.16) 50%, transparent 65%);
+  transform: translate3d(-110%, 0, 0);
+  transition: transform 900ms var(--e-out);
+}
+.cta:hover .cta__sheen{ transform: translate3d(110%, 0, 0); }
+
+
+/* ==========================================================================
+   8. RAIL & CARDS
+   ========================================================================== */
+.rail{
+  position: relative;
+  width: var(--card-w);
+  height: calc(var(--card-h) * 1.62);
+  align-self: center;
+  transition: opacity 320ms var(--e-soft),
+              transform 320ms var(--e-soft),
+              filter 320ms var(--e-soft);
+}
+/* The swap state lives in §11 — it has to outrank the entrance rule. */
+
+.stack{
+  position: absolute;
+  inset: 0;
+}
+
+.card{
+  position: absolute;
+  top: 0; right: 0;
+  width: var(--card-w);
+  height: var(--card-h);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transform-origin: 100% 0;
+  background: var(--void-lift) center / cover no-repeat;
+  border: 1px solid rgba(255,255,255,.10);
+  box-shadow: 0 30px 70px -30px rgba(0,0,0,.9);
+  will-change: transform, opacity, filter;
+  transition:
+    transform var(--t-slide) var(--e-out),
+    opacity   var(--t-slide) var(--e-soft),
+    filter    var(--t-slide) var(--e-soft),
+    box-shadow 600ms var(--e-soft);
+}
+
+/* Inner darkening so the caption always reads */
+.card::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(10,10,12,.86) 0%, rgba(10,10,12,.18) 46%, rgba(10,10,12,.34) 100%);
+}
+
+.card__cap{
+  position: absolute;
+  left: 14px; right: 14px; bottom: 13px;
+  z-index: 2;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.card__num{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: .68rem;
+  color: var(--accent);
+}
+.card__name{
+  font-size: .78rem;
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+/* A hairline that marks the front-most card as "live" */
+.card__edge{
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  box-shadow: 0 0 0 1px rgba(215,185,141,0) inset;
+  transition: box-shadow 600ms var(--e-soft);
+}
+
+
+/* ==========================================================================
+   9. CARD SLOTS — front, mid, back, queued, exiting
+   ========================================================================== */
+.card.slot-0{
+  transform: translate3d(0, 0, 0) scale(1);
+  opacity: 1;
+  filter: blur(0px) brightness(1);
+  z-index: 4;
+}
+.card.slot-0 .card__edge{ box-shadow: 0 0 0 1px var(--accent-soft) inset; }
+
+.card.slot-1{
+  transform: translate3d(-7%, 17%, 0) scale(.855);
+  opacity: .72;
+  filter: blur(1.4px) brightness(.78);
+  z-index: 3;
+}
+.card.slot-2{
+  transform: translate3d(-13%, 33%, 0) scale(.725);
+  opacity: .38;
+  filter: blur(3px) brightness(.6);
+  z-index: 2;
+}
+.card.slot-hidden{
+  transform: translate3d(-18%, 47%, 0) scale(.63);
+  opacity: 0;
+  filter: blur(5px) brightness(.5);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* The moment the active card dissolves outward into the backdrop */
+.card.is-exiting{
+  transform: translate3d(5%, -9%, 0) scale(1.55);
+  opacity: 0;
+  filter: blur(20px) brightness(1.15);
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Hover only applies to the cards you can actually pick */
+.card.slot-1:hover, .card.slot-1:focus-visible{
+  transform: translate3d(-9%, 16%, 0) scale(.885);
+  opacity: .92;
+  filter: blur(0px) brightness(.95);
+}
+.card.slot-2:hover, .card.slot-2:focus-visible{
+  transform: translate3d(-15%, 32%, 0) scale(.755);
+  opacity: .62;
+  filter: blur(1px) brightness(.8);
+}
+.card.slot-0{ cursor: default; }
+
+
+/* ==========================================================================
+   10. HUD — arrows, dots, counter
+   ========================================================================== */
+.hud{
+  display: flex;
+  align-items: center;
+  gap: clamp(18px, 3vw, 40px);
+  padding-top: clamp(12px, 2vh, 22px);
+  border-top: 1px solid var(--hair);
+}
+
+.arrows{ display: flex; gap: 10px; }
+
+.arrow{
+  display: grid;
+  place-items: center;
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  color: var(--ink-dim);
+  background: var(--glass);
+  border: 1px solid var(--glass-edge);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transition: transform 480ms var(--e-out),
+              color 400ms var(--e-soft),
+              background 400ms var(--e-soft),
+              border-color 400ms var(--e-soft);
+}
+.arrow:hover, .arrow:focus-visible{
+  color: var(--void);
+  background: var(--ink);
+  border-color: transparent;
+  transform: scale(1.07);
+}
+.arrow:active{ transform: scale(.93); }
+
+.dots{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: auto;
+}
+.dot{
+  position: relative;
+  width: 22px; height: 20px;
+  padding: 0;
+  display: grid;
+  align-items: center;
+  transition: width 700ms var(--e-out);
+}
+.dot::before{
+  content: "";
+  display: block;
+  height: 1px;
+  width: 100%;
+  background: var(--hair);
+  transition: background 500ms var(--e-soft);
+}
+.dot:hover::before{ background: var(--ink-faint); }
+
+.dot__fill{
+  position: absolute;
+  left: 0; right: 0;
+  top: calc(50% - .5px);
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+.dot.is-active{ width: 52px; }
+.dot.is-active .dot__fill{ transform: scaleX(var(--p, 1)); }
+
+.count{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: .82rem;
+  letter-spacing: .04em;
+}
+.count__slash{
+  width: 16px; height: 1px;
+  background: var(--hair);
+}
+.count__all{ color: var(--ink-faint); }
+
+
+/* ==========================================================================
+   11. ENTRANCE CHOREOGRAPHY (one orchestrated reveal, after the veil lifts)
+   ========================================================================== */
+.topbar, .hud{
+  opacity: 0;
+  transform: translate3d(0, 10px, 0);
+  transition: opacity 900ms var(--e-soft), transform 900ms var(--e-out);
+}
+.hero.is-live .topbar{ opacity: 1; transform: none; transition-delay: 480ms; }
+.hero.is-live .hud   { opacity: 1; transform: none; transition-delay: 620ms; }
+
+.rail{
+  opacity: 0;
+  transform: translate3d(40px, 0, 0);
+}
+.hero.is-live .rail{
+  opacity: 1;
+  transform: none;
+  transition: opacity 1000ms var(--e-soft) 260ms, transform 1200ms var(--e-out) 260ms;
+}
+/* After the reveal, the rail's own swap transition takes over again */
+.hero.is-live.is-settled .rail{
+  transition: opacity 320ms var(--e-soft),
+              transform 320ms var(--e-soft),
+              filter 320ms var(--e-soft);
+}
+
+/* Direct jumps from the dots: the rail clears out, re-seeds, and returns */
+.hero.is-live .rail.is-swapping{
+  opacity: 0;
+  transform: translate3d(26px, 0, 0);
+  filter: blur(10px);
+}
+
+
+/* ==========================================================================
+   12. RESPONSIVE
+   ========================================================================== */
+
+/* — Laptop: pull the type back a step ————————————————— */
+@media (max-width: 1180px){
+  .panel{ max-width: 28rem; }
+  .topbar__hint{ display: none; }
+}
+
+/* — Tablet & phone: the stack fans out sideways under the type ——— */
+@media (max-width: 860px){
+  :root{
+    --card-w: clamp(122px, 30vw, 156px);
+  }
+
+  .hero{ padding-bottom: clamp(14px, 2vh, 24px); }
+
+  .stage{
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    align-items: end;
+    gap: clamp(20px, 4vh, 34px);
+    padding-bottom: 0;
+  }
+
+  .panel{ max-width: none; order: 2; }
+  .panel__desc{ max-width: 32ch; }
+
+  .rail{
+    order: 1;
+    width: 100%;
+    height: var(--card-h);
+    align-self: start;
+    justify-self: start;
+  }
+  .stack{ inset: 0; }
+
+  /* Horizontal fan: front card left, the rest peeking off the right edge */
+  .card{
+    top: 0; right: auto; left: 0;
+    transform-origin: 0 50%;
+  }
+  .card.slot-0     { transform: translate3d(0, 0, 0) scale(1); }
+  .card.slot-1     { transform: translate3d(108%, 0, 0) scale(.9);  opacity: .68; }
+  .card.slot-2     { transform: translate3d(210%, 0, 0) scale(.8);  opacity: .34; }
+  .card.slot-hidden{ transform: translate3d(300%, 0, 0) scale(.72); opacity: 0;   }
+  .card.is-exiting { transform: translate3d(-14%, -6%, 0) scale(1.5); }
+
+  .card.slot-1:hover, .card.slot-1:focus-visible{ transform: translate3d(106%, 0, 0) scale(.93); opacity: .85; }
+  .card.slot-2:hover, .card.slot-2:focus-visible{ transform: translate3d(208%, 0, 0) scale(.83); opacity: .5;  }
+
+  .hero.is-live .rail{ transform: none; }
+
+  .bg__grade{
+    background:
+      linear-gradient(to top, rgba(10,10,12,.96) 12%, rgba(10,10,12,.55) 52%, rgba(10,10,12,.72) 100%),
+      radial-gradient(120% 80% at 50% 30%, transparent 30%, rgba(10,10,12,.6) 100%);
+  }
+}
+
+/* — Small phones: trim the HUD to what's usable ————————— */
+@media (max-width: 560px){
+  .dots{ display: none; }
+  .count{ margin-left: auto; }
+  .arrow{ width: 42px; height: 42px; }
+  .panel__title{ font-size: clamp(2.1rem, 11vw, 3.2rem); }
+  .brand__sub{ display: none; }
+}
+
+/* — Short landscape windows —————————————————————— */
+@media (max-height: 620px) and (min-width: 861px){
+  .panel__title{ font-size: clamp(2rem, 4.4vw, 3.4rem); }
+  .panel__desc{ margin-bottom: 20px; }
+  :root{ --card-w: clamp(120px, 10vw, 158px); }
+}
+
+
+/* ==========================================================================
+   13. MOTION & FOCUS PREFERENCES
+   ========================================================================== */
+:focus-visible{
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce){
+  :root{ --t-slide: 220ms; --t-bg: 260ms; --t-panel: 200ms; }
+
+  .bg__layer.is-anim{ animation: none; }
+  .skip__dot{ animation: none; }
+  .cta__sheen{ display: none; }
+
+  .intro__name, .intro__tag, .intro__rule, .skip{
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+  .intro__rule{ transform: scaleX(1); }
+
+  .panel > *{ filter: none; transform: none; }
+  .panel.is-out > *{ transform: none; filter: none; }
+  .card{ filter: none !important; }
+  .card.is-exiting{ transform: none; }
+  .hero, .hero.is-live .topbar, .hero.is-live .hud, .hero.is-live .rail{
+    transform: none;
+  }
+}
