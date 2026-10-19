@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+<!-- EDIT: Page title + description -->
+<title>Portfolio — Cinematic Index</title>
+<meta name="description" content="A cinematic index of work, writing, and open resources." />
+<meta name="theme-color" content="#0a0a0c" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<!--
+  Fonts: Syne (display) + Plus Jakarta Sans (body) are active.
+  Cinzel + Inter are loaded as alternates — swap them in :root inside style.css.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Cinzel:wght@500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="is-booting">
+
+<!-- ══════════════════════════════════════════════════════════════════
+     PHASE 1 — CINEMATIC INTRO
+     ══════════════════════════════════════════════════════════════════ -->
+<div class="intro" id="intro" role="region" aria-label="Opening sequence">
+
+  <!-- EDIT: Replace the poster below with your own still frame -->
+  <video
+    class="intro__video"
+    id="introVideo"
+    autoplay
+    muted
+    playsinline
+    preload="auto"
+    disablepictureinpicture
+    poster="intro.mp4">
+    <!-- ================================================================
+         EDIT: PASTE YOUR VIDEO SOURCE URL HERE
+         Example: <source src="assets/intro.mp4" type="video/mp4" />
+         If the file is missing or autoplay is blocked, the scripted
+         title-card fallback below plays instead — nothing breaks.
+         ================================================================ -->
+    <source src="intro.mp4" type="video/mp4" />
+  </video>
+
+  <div class="intro__scrim" aria-hidden="true"></div>
+
+  <!-- Fallback title card: shown only when the video cannot play -->
+  <div class="intro__card" id="introCard" aria-hidden="true">
+    <!-- EDIT: Your name / studio name -->
+    <h1 class="intro__name">Portfolio</h1>
+    <p class="intro__tag">Eight rooms. One index.</p>
+    <span class="intro__rule" aria-hidden="true"></span>
+  </div>
+
+  <button class="skip" id="skipIntro" type="button">
+    <span class="skip__dot" aria-hidden="true"></span>
+    <span class="skip__text">Skip intro</span>
+  </button>
+
+</div>
+
+<!-- Black + blur dissolve used between phases -->
+<div class="veil" id="veil" aria-hidden="true"></div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════
+     PHASE 2 — HERO SLIDER
+     ══════════════════════════════════════════════════════════════════ -->
+<main class="hero" id="hero" aria-hidden="true">
+
+  <!-- Two stacked layers crossfade into each other -->
+  <div class="bg" aria-hidden="true">
+    <div class="bg__layer" data-layer="0"></div>
+    <div class="bg__layer" data-layer="1"></div>
+  </div>
+  <div class="bg__grade" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <!-- EDIT: Brand mark / initials -->
+    <a class="brand" href="#" aria-label="Home">
+      <span class="brand__mark">AZ</span>
+      <span class="brand__line" aria-hidden="true"></span>
+      <span class="brand__sub">Index</span>
+    </a>
+    <p class="topbar__hint">
+      <kbd>←</kbd><kbd>→</kbd>
+      <span>to move</span>
+    </p>
+  </header>
+
+  <section class="stage">
+
+    <!-- LEFT: active section metadata -->
+    <div class="panel" id="panel">
+      <p class="panel__meta">
+        <span class="panel__num" id="metaNum">01</span>
+        <span class="panel__ar" id="metaAr" lang="ar" dir="rtl">نبذة عني</span>
+      </p>
+      <h2 class="panel__title" id="metaTitle">About Me</h2>
+      <p class="panel__desc" id="metaDesc">Loading section.</p>
+      <!-- EDIT target links live in the SECTIONS array in script.js -->
+      <div class="cta-wrap">
+      <a class="cta" id="metaCta" href="#">
+        <span class="cta__label">Enter</span>
+        <span class="cta__pip" aria-hidden="true">
+          <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 8h9.5M8.5 4l4 4-4 4" />
+          </svg>
+        </span>
+        <span class="cta__sheen" aria-hidden="true"></span>
+      </a>
+      </div>
+    </div>
+
+    <!-- RIGHT: three floating thumbnails -->
+    <div class="rail">
+      <div class="stack" id="stack"><!-- cards injected by script.js --></div>
+    </div>
+
+  </section>
+
+  <footer class="hud">
+    <div class="arrows">
+      <button class="arrow" id="prevBtn" type="button" aria-label="Previous section">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 5l-7 7 7 7" />
+        </svg>
+      </button>
+      <button class="arrow" id="nextBtn" type="button" aria-label="Next section">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+
+    <nav class="dots" id="dots" aria-label="Sections"><!-- injected by script.js --></nav>
+
+    <p class="count">
+      <span id="countNow">01</span>
+      <span class="count__slash" aria-hidden="true"></span>
+      <span class="count__all" id="countAll">08</span>
+    </p>
+  </footer>
+
+  <p class="sr-only" aria-live="polite" id="liveRegion"></p>
+</main>
+
+<script src="script.js" defer></script>
+</body>
+</html>
