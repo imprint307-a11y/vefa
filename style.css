@@ -106,8 +106,9 @@ body.is-booting *{ animation-play-state: paused; }
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transform: scale(1.02);                /* hides letterbox edges */
+  object-fit: contain;                   /* يحافظ على أبعاد الفيديو كاملة دون قص */
+  object-position: center;              /* يضمن توسيط الفيديو في الشاشة */
+  transform: none;                      /* إزالة التكبير */
   transition: opacity 900ms var(--e-soft), filter 900ms var(--e-soft);
 }
 
