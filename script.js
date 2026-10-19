@@ -72,7 +72,7 @@ const SECTIONS = [
     title: 'Writing',
     ar:    'المدونة والكتابات الفنية',
     desc:  "A window into how I think, build, and solve problems — long-form essays grounded in real-world craft and timeless lessons.",
-    href:  'https://hussienalomari7-ui.github.io/blog/',                                    // EDIT: target page
+    href:  'pages/blog.html',                                    // EDIT: target page
     image: 'whrite.jpeg' // EDIT: image URL
   },
   {
@@ -335,6 +335,7 @@ function writePanel(i) {
   metaDesc.textContent  = s.desc;
   metaCta.setAttribute('href', s.href);
   metaCta.setAttribute('aria-label', `Enter ${s.title}`);
+  metaCta.setAttribute('target', '_blank');
 }
 
 /** Staggered exit, silent swap, staggered entrance. */
@@ -606,7 +607,7 @@ function init() {
   initIntro();
   initInput();
 
-  on(window, 'pagehide', destroy);
+  //on(window, 'pagehide', destroy);
 
   requestAnimationFrame(() => document.body.classList.remove('is-booting'));
 }
@@ -616,3 +617,22 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+// إعادة تشغيل الصفحة والتنقل في حال رجوع المستخدم من صفحة فرعية
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) {
+    // إعادة تنشيط المتغيرات الأساسية
+    busy = false;
+    pending = 0;
+
+    // إخفاء الـ Intro فوراً لأن الزائر شاهدها مسبقاً
+    intro.classList.add('is-gone');
+    intro.setAttribute('aria-hidden', 'true');
+    hero.setAttribute('aria-hidden', 'false');
+    hero.classList.add('is-live', 'is-settled');
+    panel.classList.add('is-in');
+    veil.classList.remove('is-on');
+
+    // إعادة رسم الشريحة الحالية
+    paint(index);
+  }
+});
