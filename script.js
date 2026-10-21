@@ -72,8 +72,7 @@ const SECTIONS = [
     title: 'Writing',
     ar:    'المدونة والكتابات الفنية',
     desc:  "A window into how I think, build, and solve problems — long-form essays grounded in real-world craft and timeless lessons.",
-    href:  'https://hussienalomari7-ui.github.io/blog/
-',                                    // EDIT: target page
+    href:  'https://hussienalomari7-ui.github.io/blog/',                                    // EDIT: target page
     image: 'whrite.jpeg' // EDIT: image URL
   },
   {
